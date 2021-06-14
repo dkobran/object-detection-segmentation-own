@@ -72,21 +72,36 @@ def index():
 def upload():
     if request.method == 'POST':
 
+#        try:
+#
+#            # open image
+#            file = Image.open(request.files['file'].stream)
+#
+#            # remove alpha channel
+#            rgb_im = file.convert('RGB')
+#            rgb_im.save('file.jpg')
+#
+#        # failure
+#        except:
+#
+#            return render_template("failure.html")
+
+# NMB: Debug which line is failing
+
         try:
-
-            # open image
             file = Image.open(request.files['file'].stream)
-
-            # remove alpha channel
-            rgb_im = file.convert('RGB')
-            rgb_im.save('file.jpg')
-
-        # failure
         except:
+            return render_template("failure_post_1.html")
+        try:
+            rgb_im = file.convert('RGB')
+        except:
+            return render_template("failure_post_2.html")
+        try:
+            rgb_im.save('file.jpg')
+        except:
+            return render_template("failure_post_3.html")
 
-            # return render_template("failure.html")
-            return render_template("failure_post.html") #NMB: Added this
-
+        
     elif request.method == 'GET':
 
         # get url
