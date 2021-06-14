@@ -84,8 +84,7 @@ def upload():
         # failure
         except:
 
-            # return render_template("failure.html")
-            return render_template("failure_post.html") #NMB: Added this
+            return render_template("failure.html")
 
     elif request.method == 'GET':
 
@@ -102,8 +101,7 @@ def upload():
 
         # failure
         except:
-            # return render_template("failure.html")
-            return render_template("failure_get.html") #NMB: Added this
+            return render_template("failure.html")
 
     # run inference
     # result_img = run_inference_transform()
@@ -120,8 +118,7 @@ def upload():
         file_object.seek(0)
     except Exception as e:
         app.logger.critical(str(e))
-        # return render_template("failure.html")
-        return render_template("failure_inference.html") #NMB: Added this
+        return render_template("failure.html")
 
     return send_file(file_object, mimetype='image/jpeg')
 
