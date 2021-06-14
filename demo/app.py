@@ -92,14 +92,14 @@ def upload():
             file = Image.open(request.files['file'].stream)
         except:
             return render_template("failure_post_1.html")
-        try:
-            rgb_im = file.convert('RGB')
-        except:
-            return render_template("failure_post_2.html")
-        try:
-            rgb_im.save('file.jpg')
-        except:
-            return render_template("failure_post_3.html")
+#        try:
+#            rgb_im = file.convert('RGB')
+#        except:
+#            return render_template("failure_post_2.html")
+#        try:
+#            rgb_im.save('file.jpg')
+#        except:
+#            return render_template("failure_post_3.html")
 
         
     elif request.method == 'GET':
