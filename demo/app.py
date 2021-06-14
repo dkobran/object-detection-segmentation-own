@@ -91,6 +91,7 @@ def upload():
         try:
             file = Image.open(request.files['file'].stream)
         except:
+            print('Exception!')
             return render_template("failure_post_2.html")
 #        try:
 #            rgb_im = file.convert('RGB')
