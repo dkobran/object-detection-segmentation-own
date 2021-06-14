@@ -91,11 +91,11 @@ def upload():
         try:
             file = Image.open(request.files['file'].stream)
         except:
-            return render_template("failure_post_1.html")
+            return render_template("failure_post_2.html")
 #        try:
 #            rgb_im = file.convert('RGB')
 #        except:
-#            return render_template("failure_post_2.html")
+#            return render_template("failure_post_1.html")
 #        try:
 #            rgb_im.save('file.jpg')
 #        except:
