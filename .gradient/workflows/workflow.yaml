@@ -1,0 +1,93 @@
+'on':
+  github:
+    branches:
+      only: main
+    
+jobs:
+  cloneRepo:
+      uses: git-checkout@v1
+      with:
+        url: https://github.com/nmb-paperspace/object-detection-segmentation-own.git
+      inputs:
+        repo:
+          type: volume
+      resources:
+        instance-type: C5
+  maskRCNN:
+    uses: script@v1
+    with:
+      image: devopsbay/detectron2-cuda:v0
+      script: |-
+        sudo cp -R /inputs/repo /ods
+        sudo cp -R /inputs/repo/data /
+        cd /ods
+        sudo python training/train_net.py \
+          --config-file training/configs/mask_rcnn_R_50_FPN_1x.yaml \
+          --num-gpus 1 \
+          SOLVER.IMS_PER_BATCH 2 \
+          SOLVER.BASE_LR 0.0025 \
+          MODEL.WEIGHTS https://dl.fbaipublicfiles.com/detectron2/COCO-Detection/faster_rcnn_R_50_FPN_1x/137257794/model_final_b275ba.pkl \
+          OUTPUT_DIR /outputs/detector-model
+    needs:
+      - cloneRepo
+    inputs:
+      repo:
+        type: volume
+    outputs:
+      detector-model:
+        type: dataset
+        with:
+          id: dstmt2ius5k3hxe
+    resources:
+      instance-type: P4000
+  uploadModel:
+    uses: create-model@v1
+    with:
+      name: model
+      type: Custom
+    needs:
+      - maskRCNN
+    inputs:
+      model: maskRCNN.outputs.detector-model
+    outputs:
+      model-id:
+        type: string
+    resources:
+      instance-type: C5
+  runDeploy:
+    uses: script@v1
+    with:
+      image: devopsbay/detectron2:v1
+      script: |-
+        sudo cp -R /inputs/repo /ods
+        sudo cp -R /inputs/detector-model /detector-model
+        echo 'Model ID is'
+        cat /inputs/model-id
+        pip install gradient
+        export LC_ALL=C.UTF-8
+        export LANG=C.UTF-8
+        gradient deployments create \
+          --deploymentType Custom \
+          --name "Detectron2 Model" \
+          --machineType P4000 \
+          --imageUrl devopsbay/detectron2:v1 \
+          --modelId $(cat /inputs/model-id) \
+          --instanceCount 1 \
+          --clusterId clzut41m4 \
+          --ports 8080 \
+          --command "pip3 install -r /workspace/demo/requirements.txt && FLASK_ENV=development python /workspace/demo/app.py" \
+          --workspace https://github.com/nmb-paperspace/object-detection-segmentation-own.git
+    needs:
+      - cloneRepo
+      - maskRCNN
+      - uploadModel
+    inputs:
+      repo:
+        type: volume
+      model-id: uploadModel.outputs.model-id
+      detector-model:
+        type: dataset
+        with:
+          id: dstmt2ius5k3hxe
+    resources:
+      instance-type: P4000
