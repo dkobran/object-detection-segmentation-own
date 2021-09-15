@@ -7,7 +7,7 @@ jobs:
   cloneRepo:
       uses: git-checkout@v1
       with:
-        url: https://github.com/nmb-paperspace/object-detection-segmentation-own.git
+        url: https://github.com/dkobran/object-detection-segmentation-own
       inputs:
         repo:
           type: volume
